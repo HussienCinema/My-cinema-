@@ -3,42 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Cinema | تلقائي</title>
+    <title>My Cinema | عالم الأفلام</title>
     <style>
-        body { background-color: #0b0b0b; color: white; font-family: sans-serif; margin: 0; }
-        header { background: #000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #e50914; }
-        .logo { color: #e50914; font-size: 24px; font-weight: bold; text-decoration: none; }
+        :root { --primary-color: #e50914; --bg-color: #0b0b0b; --card-bg: #1a1a1a; }
+        body { background-color: var(--bg-color); color: white; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; }
+        
+        /* الهيدر وشريط البحث */
+        header { background: #000; padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-color); position: sticky; top: 0; z-index: 100; flex-wrap: wrap; gap: 10px; }
+        .logo { color: var(--primary-color); font-size: 24px; font-weight: bold; text-decoration: none; }
+        #search-input { padding: 8px 15px; border-radius: 20px; border: none; outline: none; width: 250px; background: #333; color: white; }
+
+        /* شبكة الأفلام */
         .container { padding: 20px 5%; }
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 20px; }
-        .movie-card { background: #1a1a1a; border-radius: 8px; overflow: hidden; transition: 0.3s; }
-        .movie-card img { width: 100%; height: auto; }
-        .movie-card h3 { font-size: 14px; padding: 10px; margin: 0; text-align: center; }
-        .rating { color: #ffbd00; font-size: 12px; padding-bottom: 10px; text-align: center; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; }
+        .movie-card { background: var(--card-bg); border-radius: 12px; overflow: hidden; transition: transform 0.3s; cursor: pointer; position: relative; }
+        .movie-card:hover { transform: scale(1.05); }
+        .movie-card img { width: 100%; height: auto; display: block; }
+        .movie-info { padding: 10px; text-align: center; }
+        .movie-info h3 { font-size: 14px; margin: 5px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .rating { color: #ffbd00; font-size: 13px; }
+
+        /* نافذة المشاهدة (Modal) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
+        .modal-content { width: 90%; max-width: 800px; position: relative; }
+        .close-modal { position: absolute; top: -40px; left: 0; color: white; font-size: 30px; cursor: pointer; }
+        iframe { width: 100%; aspect-ratio: 16/9; border: none; border-radius: 10px; }
+
+        /* تحسينات الهواتف */
+        @media (max-width: 600px) {
+            header { justify-content: center; }
+            #search-input { width: 100%; }
+            .movie-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <a href="#" class="logo">MY CINEMA</a>
-    <div id="search">أحدث الأفلام العالمية</div>
+    <a href="index.html" class="logo">MY CINEMA</a>
+    <input type="text" id="search-input" placeholder="ابحث عن فيلم...">
 </header>
 
 <div class="container">
     <h2 id="title">الأفلام الرائجة الآن</h2>
-    <div class="movie-grid" id="movie-grid">
-        </div>
+    <div class="movie-grid" id="movie-grid"></div>
+</div>
+
+<div id="videoModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div id="player-container"></div>
+    </div>
 </div>
 
 <script>
-    // ضع مفتاح الـ API الخاص بك هنا
     const API_KEY = '243d3178406656f0f1ceb1fde181815e'; 
-    const API_URL = `https://api.themoviedb.org/3/movie/popular?api_key=${API_KEY}&language=ar-SA&page=1`;
+    const BASE_URL = 'https://api.themoviedb.org/3';
     const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
-
+    
     const grid = document.getElementById('movie-grid');
+    const searchInput = document.getElementById('search-input');
+    const modal = document.getElementById('videoModal');
+    const closeBtn = document.querySelector('.close-modal');
+    const playerContainer = document.getElementById('player-container');
 
-    async function getMovies() {
-        const res = await fetch(API_URL);
+    // جلب الأفلام (رائجة أو بحث)
+    async function getMovies(url) {
+        const res = await fetch(url);
         const data = await res.json();
         showMovies(data.results);
     }
@@ -46,19 +77,51 @@
     function showMovies(movies) {
         grid.innerHTML = '';
         movies.forEach((movie) => {
-            const { title, poster_path, vote_average } = movie;
+            if(!movie.poster_path) return;
             const movieEl = document.createElement('div');
             movieEl.classList.add('movie-card');
+            movieEl.onclick = () => openPlayer(movie.id);
             movieEl.innerHTML = `
-                <img src="${IMG_PATH + poster_path}" alt="${title}">
-                <h3>${title}</h3>
-                <div class="rating">⭐ ${vote_average}</div>
+                <img src="${IMG_PATH + movie.poster_path}" alt="${movie.title}">
+                <div class="movie-info">
+                    <h3>${movie.title}</h3>
+                    <div class="rating">⭐ ${movie.vote_average.toFixed(1)}</div>
+                </div>
             `;
             grid.appendChild(movieEl);
         });
     }
 
-    getMovies();
+    // تشغيل الفيلم (استخدام سيرفر تجريبي)
+    function openPlayer(movieId) {
+        // نستخدم سيرفر vidsrc المشهور لعرض الأفلام (لأغراض تعليمية)
+        const embedUrl = `https://vidsrc.me/embed/movie?tmdb=${movieId}`;
+        playerContainer.innerHTML = `<iframe src="${embedUrl}" allowfullscreen></iframe>`;
+        modal.style.display = 'flex';
+    }
+
+    // إغلاق النافذة
+    closeBtn.onclick = () => {
+        modal.style.display = 'none';
+        playerContainer.innerHTML = ''; // إيقاف الفيديو عند الإغلاق
+    }
+
+    // البحث عن الأفلام
+    searchInput.addEventListener('keypress', (e) => {
+        if(e.key === 'Enter') {
+            const query = searchInput.value;
+            if(query) {
+                getMovies(`${BASE_URL}/search/movie?api_key=${API_KEY}&query=${query}&language=ar-SA`);
+                document.getElementById('title').innerText = `نتائج البحث عن: ${query}`;
+            }
+        }
+    });
+
+    // تحميل الأفلام الرائجة عند البداية
+    getMovies(`${BASE_URL}/movie/popular?api_key=${API_KEY}&language=ar-SA`);
+
+    // إغلاق المودال عند الضغط خارجه
+    window.onclick = (event) => { if (event.target == modal) closeBtn.onclick(); }
 </script>
 
 </body>
