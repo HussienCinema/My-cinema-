@@ -3,34 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Cinema | النسخة النهائية</title>
+    <title>My Cinema | النسخة الشاملة</title>
     <style>
         :root { --primary: #e50914; --bg: #0b0b0b; --card-bg: #1a1a1a; }
-        body { background-color: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-bottom: 50px; }
+        body { background-color: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
         
-        header { background: #000; padding: 20px 5%; display: flex; flex-direction: column; align-items: center; gap: 15px; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
-        .logo { color: var(--primary); font-size: 28px; font-weight: bold; text-decoration: none; }
+        header { background: #000; padding: 15px 5%; display: flex; flex-direction: column; align-items: center; gap: 10px; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
+        .logo { color: var(--primary); font-size: 24px; font-weight: bold; cursor: pointer; }
         #search-input { padding: 10px 20px; border-radius: 20px; border: none; width: 100%; max-width: 400px; background: #222; color: white; outline: none; text-align: center; }
 
         .filter-section { background: #000; padding: 10px 0; border-bottom: 1px solid #333; }
-        .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 5px 5%; scrollbar-width: none; }
+        .filter-label { padding: 0 5%; font-size: 14px; color: #888; margin-bottom: 5px; display: block; }
+        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 0 5% 10px 5%; scrollbar-width: none; }
         .filter-bar::-webkit-scrollbar { display: none; }
-        .filter-btn { background: #222; color: white; border: 1px solid #444; padding: 6px 15px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-size: 13px; }
+        .filter-btn { background: #222; color: white; border: 1px solid #444; padding: 6px 15px; border-radius: 15px; cursor: pointer; white-space: nowrap; font-size: 12px; }
         .filter-btn.active { background: var(--primary); border-color: var(--primary); }
 
-        .container { padding: 20px 5%; }
-        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; }
+        #main-page { padding: 20px 5%; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
         .movie-card { background: var(--card-bg); border-radius: 8px; overflow: hidden; cursor: pointer; transition: 0.3s; }
-        .movie-card:hover { transform: scale(1.03); }
-        .movie-card img { width: 100%; height: auto; display: block; }
-        .movie-info { padding: 8px; text-align: center; font-size: 12px; }
+        .movie-card img { width: 100%; height: auto; display: block; background: #222; }
+        .movie-info { padding: 8px; text-align: center; font-size: 11px; }
 
-        .load-more-btn { display: block; margin: 30px auto; padding: 12px 35px; background: var(--primary); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        #details-page { display: none; padding: 30px 5%; min-height: 100vh; background-size: cover; background-position: center; position: relative; }
+        #details-page::before { content: ""; position: absolute; inset: 0; background: rgba(0,0,0,0.92); z-index: 1; }
+        .details-content { position: relative; z-index: 2; display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+        .details-poster { width: 220px; border-radius: 10px; }
+        .details-info { flex: 1; min-width: 280px; max-width: 500px; }
 
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; padding: 20px; }
-        .modal-content { width: 100%; max-width: 800px; background: #111; padding: 20px; border-radius: 10px; position: relative; }
-        .close-modal { position: absolute; top: -35px; left: 0; color: white; font-size: 30px; cursor: pointer; }
-        iframe { width: 100%; aspect-ratio: 16/9; border: none; }
+        #player-page { display: none; position: fixed; inset: 0; background: #000; z-index: 9999; flex-direction: column; }
+        .close-player { position: absolute; top: 10px; left: 10px; background: rgba(255,0,0,0.7); color: white; border: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; z-index: 10001; font-size: 16px; }
+        iframe { width: 100%; height: 100%; border: none; }
+
+        .btn-action { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; width: 100%; margin-top: 20px; }
 
         @media (max-width: 500px) { .movie-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
@@ -38,58 +43,76 @@
 <body>
 
 <header>
-    <a href="#" class="logo" onclick="location.reload()">MY CINEMA</a>
+    <div class="logo" onclick="location.reload()">MY CINEMA</div>
     <input type="text" id="search-input" placeholder="ابحث عن فيلم...">
 </header>
 
-<div class="filter-section">
-    <div class="filter-bar" id="genres">
-        <button class="filter-btn active" onclick="updateFilter('genre', '', this)">الكل</button>
-        <button class="filter-btn" onclick="updateFilter('genre', '28', this)">أكشن</button>
-        <button class="filter-btn" onclick="updateFilter('genre', '27', this)">رعب</button>
-        <button class="filter-btn" onclick="updateFilter('genre', '35', this)">كوميدي</button>
-        <button class="filter-btn" onclick="updateFilter('genre', '16', this)">أنيميشن</button>
-    </div>
-    <div class="filter-bar" style="margin-top:5px;" id="langs">
-        <button class="filter-btn active" onclick="updateFilter('lang', '', this)">كل اللغات</button>
-        <button class="filter-btn" onclick="updateFilter('lang', 'en', this)">الإنجليزية</button>
-        <button class="filter-btn" onclick="updateFilter('lang', 'ar', this)">العربية</button>
-        <button class="filter-btn" onclick="updateFilter('lang', 'ko', this)">الكورية</button>
-    </div>
-</div>
+<div id="main-page">
+    <div class="filter-section">
+        <span class="filter-label">الأصناف:</span>
+        <div class="filter-bar" id="genres">
+            <button class="filter-btn active" onclick="updateFilter('genre', '', this)">الكل</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '35', this)">كوميدي 🎭</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '28', this)">أكشن</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '18', this)">دراما</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '10751', this)">عائلي</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '12', this)">مغامرة</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '80', this)">جريمة</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '878', this)">خيال علمي</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '10749', this)">رومانسي</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '53', this)">إثارة</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '16', this)">رسوم متحركة</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '14', this)">خيالي</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '99', this)">وثائقي</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '10402', this)">موسيقى</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '37', this)">حياة الغرب</button>
+            <button class="filter-btn" onclick="updateFilter('genre', '36', this)">سيرة ذاتية</button>
+        </div>
 
-<div class="container">
-    <h3 id="main-title">أحدث الأفلام المضافة</h3>
+        <span class="filter-label">اللغات:</span>
+        <div class="filter-bar" id="langs">
+            <button class="filter-btn active" onclick="updateFilter('lang', '', this)">كل اللغات</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'ar', this)"> عربي</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'en', this)">الإنجليزية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'fr', this)">الفرنسية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'tr', this)">التركية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'ko', this)">الكورية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'hi', this)">الهندية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'ja', this)">اليابانية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'es', this)">الإسبانية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'it', this)">الإيطالية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'de', this)">الألمانية</button>
+            <button class="filter-btn" onclick="updateFilter('lang', 'ru', this)">الروسية</button>
+        </div>
+    </div>
+    
     <div class="movie-grid" id="movie-grid"></div>
-    <button class="load-more-btn" id="load-more" onclick="loadMore()">تحميل المزيد من الأفلام...</button>
+    <button class="btn-action" style="max-width: 200px; margin: 30px auto; display: block;" onclick="loadMore()">تحميل المزيد</button>
 </div>
 
-<div id="videoModal" class="modal">
-    <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <div id="modal-body"></div>
-    </div>
+<div id="details-page">
+    <button class="filter-btn" onclick="showMain()">← عودة</button>
+    <div class="details-content" id="details-content"></div>
+</div>
+
+<div id="player-page">
+    <button class="close-player" onclick="closePlayer()">✕</button>
+    <div style="flex:1" id="video-frame"></div>
 </div>
 
 <script>
-    const API_KEY = '243d3178406656f0f1ceb1fde181815e';
-    const IMG_PATH = 'https://image.tmdb.org/t/p/w500';
-    let currentGenre = '';
-    let currentLang = '';
-    let page = 1;
-    let searchQuery = '';
+    // ضع مفتاحك هنا لكي تعمل الأفلام
+    const API_KEY = '243d3178406656f0f1ceb1fde181815e'; 
+    const IMG = 'https://image.tmdb.org/t/p/w500';
+    let page = 1, currentGenre = '', currentLang = '', searchQuery = '';
 
-    // الوظيفة الأساسية لجلب البيانات
-    async function fetchMovies(isLoadMore = false) {
-        if(!isLoadMore) {
-            page = 1;
-            document.getElementById('movie-grid').innerHTML = '<p>جاري التحميل...</p>';
-        }
+    async function fetchMovies(isMore = false) {
+        const grid = document.getElementById('movie-grid');
+        if(!isMore) { page = 1; grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">جاري التحميل...</p>'; }
 
         let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=ar-SA&sort_by=popularity.desc&page=${page}`;
-        
         if(searchQuery) {
-            url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=ar-SA&query=${searchQuery}&page=${page}`;
+            url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=ar-SA&query=${encodeURIComponent(searchQuery)}&page=${page}`;
         } else {
             if(currentGenre) url += `&with_genres=${currentGenre}`;
             if(currentLang) url += `&with_original_language=${currentLang}`;
@@ -98,44 +121,59 @@
         try {
             const res = await fetch(url);
             const data = await res.json();
-            renderMovies(data.results, isLoadMore);
-            
-            // إظهار أو إخفاء زر تحميل المزيد
-            const loadMoreBtn = document.getElementById('load-more');
-            if(data.page >= data.total_pages) {
-                loadMoreBtn.style.display = 'none';
-            } else {
-                loadMoreBtn.style.display = 'block';
-            }
-        } catch (e) {
-            document.getElementById('movie-grid').innerHTML = '<p>تعذر تحميل الأفلام، تحقق من الإنترنت.</p>';
-        }
+            if(data.results) renderMovies(data.results, isMore);
+        } catch (e) { grid.innerHTML = 'خطأ! تأكد من مفتاح API.'; }
     }
 
-    function renderMovies(movies, isLoadMore) {
+    function renderMovies(movies, isMore) {
         const grid = document.getElementById('movie-grid');
-        if(!isLoadMore) grid.innerHTML = '';
-        
+        if(!isMore) grid.innerHTML = '';
         movies.forEach(m => {
             if(!m.poster_path) return;
             const div = document.createElement('div');
             div.className = 'movie-card';
             div.onclick = () => showDetails(m);
-            div.innerHTML = `
-                <img src="${IMG_PATH + m.poster_path}">
-                <div class="movie-info">
-                    <b>${m.title}</b><br>
-                    <span style="color:gold">⭐ ${m.vote_average.toFixed(1)}</span>
-                </div>
-            `;
+            div.innerHTML = `<img src="${IMG + m.poster_path}"><div class="movie-info"><b>${m.title}</b><br>⭐ ${m.vote_average.toFixed(1)}</div>`;
             grid.appendChild(div);
         });
     }
 
+    function showDetails(m) {
+        document.getElementById('main-page').style.display = 'none';
+        const dp = document.getElementById('details-page');
+        dp.style.display = 'block';
+        dp.style.backgroundImage = `url('https://image.tmdb.org/t/p/original${m.backdrop_path || m.poster_path}')`;
+        document.getElementById('details-content').innerHTML = `
+            <img src="${IMG + m.poster_path}" class="details-poster">
+            <div class="details-info">
+                <h1>${m.title}</h1>
+                <p>${m.overview || 'لا يوجد وصف متاح.'}</p>
+                <button class="btn-action" onclick="openPlayer('${m.id}')">مشاهدة الآن</button>
+            </div>`;
+        window.scrollTo(0,0);
+    }
+
+    function openPlayer(id) {
+        document.getElementById('player-page').style.display = 'flex';
+        if (screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('landscape').catch(() => {});
+        }
+        document.getElementById('video-frame').innerHTML = `<iframe src="https://vidsrc.me/embed/movie?tmdb=${id}" allowfullscreen></iframe>`;
+    }
+
+    function closePlayer() {
+        document.getElementById('player-page').style.display = 'none';
+        document.getElementById('video-frame').innerHTML = '';
+        if (screen.orientation && screen.orientation.unlock) screen.orientation.unlock();
+    }
+
+    function showMain() {
+        document.getElementById('details-page').style.display = 'none';
+        document.getElementById('main-page').style.display = 'block';
+    }
+
     function updateFilter(type, val, btn) {
-        searchQuery = ''; // تصفير البحث عند استخدام الفلاتر
-        document.getElementById('search-input').value = '';
-        
+        searchQuery = '';
         if(type === 'genre') {
             currentGenre = val;
             document.querySelectorAll('#genres .filter-btn').forEach(b => b.classList.remove('active'));
@@ -147,42 +185,12 @@
         fetchMovies();
     }
 
-    function loadMore() {
-        page++;
-        fetchMovies(true);
+    function loadMore() { page++; fetchMovies(true); }
+
+    document.getElementById('search-input').onkeypress = (e) => {
+        if(e.key === 'Enter') { searchQuery = e.target.value; fetchMovies(); }
     }
 
-    function showDetails(m) {
-        const modal = document.getElementById('videoModal');
-        modal.style.display = 'flex';
-        document.getElementById('modal-body').innerHTML = `
-            <h3>${m.title}</h3>
-            <p style="font-size:14px">${m.overview || 'لا يوجد وصف متوفر.'}</p>
-            <button class="load-more-btn" style="width:100%" onclick="playMovie('${m.id}')">شاهد الآن</button>
-        `;
-    }
-
-    function playMovie(id) {
-        document.getElementById('modal-body').innerHTML = `
-            <iframe src="https://vidsrc.me/embed/movie?tmdb=${id}" allowfullscreen></iframe>
-            <button class="filter-btn" style="width:100%; margin-top:10px; background:#333" onclick="closeModal()">إغلاق</button>
-        `;
-    }
-
-    function closeModal() {
-        document.getElementById('videoModal').style.display = 'none';
-        document.getElementById('modal-body').innerHTML = '';
-    }
-
-    document.getElementById('search-input').addEventListener('keypress', (e) => {
-        if(e.key === 'Enter') {
-            searchQuery = e.target.value;
-            fetchMovies();
-            document.getElementById('main-title').innerText = `نتائج البحث عن: ${searchQuery}`;
-        }
-    });
-
-    // تحميل الأفلام عند فتح الصفحة
     fetchMovies();
 </script>
 </body>
