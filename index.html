@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Wika Cinema | النسخة الشاملة</title>
+    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#e50914">
     <link rel="apple-touch-icon" href="https://i.ibb.co/zTr7jm5M/Picsart-26-01-16-01-39-26-682.png">
@@ -68,7 +69,6 @@
             <button class="filter-btn" onclick="updateFilter('genre', '37', this)">حياة الغرب</button>
             <button class="filter-btn" onclick="updateFilter('genre', '36', this)">سيرة ذاتية</button>
         </div>
-
         <span class="filter-label">اللغات:</span>
         <div class="filter-bar" id="langs">
             <button class="filter-btn active" onclick="updateFilter('lang', '', this)">كل اللغات</button>
@@ -85,13 +85,12 @@
             <button class="filter-btn" onclick="updateFilter('lang', 'ru', this)">الروسية</button>
         </div>
     </div>
-    
     <div class="movie-grid" id="movie-grid"></div>
     <button class="btn-action" style="max-width: 200px; margin: 30px auto; display: block;" onclick="loadMore()">تحميل المزيد</button>
 </div>
 
 <div id="details-page">
-    <button class="filter-btn" onclick="showMain()">← عودة</button>
+    <button class="filter-btn" onclick="handleBack()">← عودة</button>
     <div class="details-content" id="details-content"></div>
 </div>
 
@@ -107,10 +106,21 @@
     const IMG = 'https://image.tmdb.org/t/p/w500';
     let page = 1, currentGenre = '', currentLang = '', searchQuery = '';
 
+    // حل مشكلة زر الرجوع في الهاتف
+    window.onpopstate = function() { showMain(); };
+
+    function handleBack() { history.back(); }
+
+    function showMain() {
+        document.getElementById('details-page').style.display = 'none';
+        document.getElementById('main-page').style.display = 'block';
+        document.getElementById('player-page').style.display = 'none';
+        document.getElementById('video-frame').innerHTML = '';
+    }
+
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
+        e.preventDefault(); deferredPrompt = e;
         document.getElementById('install-app-btn').style.display = 'block';
     });
 
@@ -156,6 +166,10 @@
         document.getElementById('main-page').style.display = 'none';
         const dp = document.getElementById('details-page');
         dp.style.display = 'block';
+        
+        // منع الخروج عند ضغط زر الرجوع
+        history.pushState({page: 'details'}, "Details", "#details");
+
         dp.style.backgroundImage = `url('https://image.tmdb.org/t/p/original${m.backdrop_path || m.poster_path}')`;
         document.getElementById('details-content').innerHTML = `
             <img src="${IMG + m.poster_path}" class="details-poster">
@@ -169,10 +183,12 @@
 
     function openPlayer(id) {
         document.getElementById('player-page').style.display = 'flex';
-        document.getElementById('video-frame').innerHTML = `<iframe src="https://vidsrc.me/embed/movie?tmdb=${id}" allowfullscreen></iframe>`;
+        // إضافة Sandbox لتقليل إزعاج الإعلانات
+        document.getElementById('video-frame').innerHTML = `<iframe src="https://vidsrc.me/embed/movie?tmdb=${id}" allowfullscreen sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"></iframe>`;
+        history.pushState({page: 'player'}, "Player", "#player");
     }
-    function closePlayer() { document.getElementById('player-page').style.display = 'none'; document.getElementById('video-frame').innerHTML = ''; }
-    function showMain() { document.getElementById('details-page').style.display = 'none'; document.getElementById('main-page').style.display = 'block'; }
+
+    function closePlayer() { handleBack(); }
     function updateFilter(type, val, btn) {
         searchQuery = '';
         if(type === 'genre') {
