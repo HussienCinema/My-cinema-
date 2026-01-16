@@ -1,6 +1,7 @@
 {
   "name": "Wika Cinema",
   "short_name": "Wika",
+  "description": "شاهد أفضل الأفلام والمسلسلات",
   "start_url": "/My-cinema-/",
   "display": "standalone",
   "background_color": "#0b0b0b",
