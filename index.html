@@ -21,6 +21,7 @@
         .logo { color: var(--primary); font-size: 24px; font-weight: bold; cursor: pointer; }
         #search-input { padding: 10px 20px; border-radius: 20px; border: none; width: 100%; max-width: 400px; background: #222; color: white; outline: none; text-align: center; }
 
+        /* زر التثبيت */
         #install-app-btn {
             display: none;
             position: fixed;
@@ -128,18 +129,14 @@
 </div>
 
 <script>
+    // تسجيل الملف الثاني sw.js
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js');
+    }
+
     const API_KEY = '243d3178406656f0f1ceb1fde181815e'; 
     const IMG = 'https://image.tmdb.org/t/p/w500';
     let page = 1, currentGenre = '', currentLang = '', searchQuery = '';
-
-    // تسجيل Service Worker لضمان التثبيت كتطبيق
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            const code = "self.addEventListener('fetch', function(e){});";
-            const blob = new Blob([code], {type: 'text/javascript'});
-            navigator.serviceWorker.register(URL.createObjectURL(blob));
-        });
-    }
 
     let deferredPrompt;
     window.addEventListener('beforeinstallprompt', (e) => {
@@ -160,15 +157,12 @@
     async function fetchMovies(isMore = false) {
         const grid = document.getElementById('movie-grid');
         if(!isMore) { page = 1; grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center;">جاري التحميل...</p>'; }
-
         let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=ar-SA&sort_by=popularity.desc&page=${page}`;
-        if(searchQuery) {
-            url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=ar-SA&query=${encodeURIComponent(searchQuery)}&page=${page}`;
-        } else {
+        if(searchQuery) url = `https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&language=ar-SA&query=${encodeURIComponent(searchQuery)}&page=${page}`;
+        else {
             if(currentGenre) url += `&with_genres=${currentGenre}`;
             if(currentLang) url += `&with_original_language=${currentLang}`;
         }
-
         try {
             const res = await fetch(url);
             const data = await res.json();
@@ -208,17 +202,8 @@
         document.getElementById('player-page').style.display = 'flex';
         document.getElementById('video-frame').innerHTML = `<iframe src="https://vidsrc.me/embed/movie?tmdb=${id}" allowfullscreen></iframe>`;
     }
-
-    function closePlayer() {
-        document.getElementById('player-page').style.display = 'none';
-        document.getElementById('video-frame').innerHTML = '';
-    }
-
-    function showMain() {
-        document.getElementById('details-page').style.display = 'none';
-        document.getElementById('main-page').style.display = 'block';
-    }
-
+    function closePlayer() { document.getElementById('player-page').style.display = 'none'; document.getElementById('video-frame').innerHTML = ''; }
+    function showMain() { document.getElementById('details-page').style.display = 'none'; document.getElementById('main-page').style.display = 'block'; }
     function updateFilter(type, val, btn) {
         searchQuery = '';
         if(type === 'genre') {
@@ -231,13 +216,8 @@
         btn.classList.add('active');
         fetchMovies();
     }
-
     function loadMore() { page++; fetchMovies(true); }
-
-    document.getElementById('search-input').onkeypress = (e) => {
-        if(e.key === 'Enter') { searchQuery = e.target.value; fetchMovies(); }
-    }
-
+    document.getElementById('search-input').onkeypress = (e) => { if(e.key === 'Enter') { searchQuery = e.target.value; fetchMovies(); } }
     fetchMovies();
 </script>
 </body>
