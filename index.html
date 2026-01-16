@@ -18,7 +18,6 @@
         .filter-section { background: #000; padding: 10px 0; border-bottom: 1px solid #333; }
         .filter-label { padding: 0 5%; font-size: 14px; color: #888; margin-bottom: 5px; display: block; }
         .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 0 5% 10px 5%; scrollbar-width: none; }
-        .filter-bar::-webkit-scrollbar { display: none; }
         .filter-btn { background: #222; color: white; border: 1px solid #444; padding: 6px 15px; border-radius: 15px; cursor: pointer; white-space: nowrap; font-size: 12px; }
         .filter-btn.active { background: var(--primary); border-color: var(--primary); }
         #main-page { padding: 20px 5%; }
@@ -106,11 +105,10 @@
     const IMG = 'https://image.tmdb.org/t/p/w500';
     let page = 1, currentGenre = '', currentLang = '', searchQuery = '';
 
-    // حل مشكلة زر الرجوع في الهاتف
+    // نظام الرجوع الذكي لمنع الخروج
     window.onpopstate = function() { showMain(); };
-
     function handleBack() { history.back(); }
-
+    
     function showMain() {
         document.getElementById('details-page').style.display = 'none';
         document.getElementById('main-page').style.display = 'block';
@@ -166,10 +164,7 @@
         document.getElementById('main-page').style.display = 'none';
         const dp = document.getElementById('details-page');
         dp.style.display = 'block';
-        
-        // منع الخروج عند ضغط زر الرجوع
         history.pushState({page: 'details'}, "Details", "#details");
-
         dp.style.backgroundImage = `url('https://image.tmdb.org/t/p/original${m.backdrop_path || m.poster_path}')`;
         document.getElementById('details-content').innerHTML = `
             <img src="${IMG + m.poster_path}" class="details-poster">
@@ -183,8 +178,7 @@
 
     function openPlayer(id) {
         document.getElementById('player-page').style.display = 'flex';
-        // إضافة Sandbox لتقليل إزعاج الإعلانات
-        document.getElementById('video-frame').innerHTML = `<iframe src="https://vidsrc.me/embed/movie?tmdb=${id}" allowfullscreen sandbox="allow-forms allow-scripts allow-same-origin allow-presentation"></iframe>`;
+        document.getElementById('video-frame').innerHTML = `<iframe src="https://vidsrc.me/embed/movie?tmdb=${id}" allowfullscreen></iframe>`;
         history.pushState({page: 'player'}, "Player", "#player");
     }
 
