@@ -2,137 +2,301 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wika News | ويكا نيوز الشامل</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#e74c3c">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Wika Cinema Ultimate</title>
     <style>
-        :root { --primary: #e74c3c; --bg: #0a0a0a; --surface: #1a1a1a; --text: #ffffff; }
-        body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
-        header { background: #000; padding: 15px; text-align: center; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
-        .logo-img { height: 40px; }
-        .live-btn { position: fixed; bottom: 20px; left: 20px; background: var(--primary); color: white; padding: 12px 25px; border-radius: 50px; font-weight: 900; box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4); cursor: pointer; z-index: 1001; display: flex; align-items: center; gap: 8px; }
-        .iptv-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; overflow-y: auto; }
-        .modal-header { padding: 15px; display: flex; justify-content: space-between; align-items: center; background: #111; }
-        .video-box { width: 100%; max-width: 900px; margin: auto; aspect-ratio: 16/9; background: #000; }
-        .channels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; padding: 15px; }
-        .ch-item { background: #222; padding: 12px; border-radius: 10px; text-align: center; cursor: pointer; font-size: 0.8rem; font-weight: bold; border: 1px solid transparent; }
-        .ch-item:hover { border-color: var(--primary); }
-        nav { background: #111; display: flex; overflow-x: auto; padding: 10px; gap: 10px; position: sticky; top: 72px; z-index: 999; border-bottom: 1px solid #222; }
-        nav::-webkit-scrollbar { display: none; }
-        nav button { background: #222; color: #fff; border: none; padding: 8px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; font-family: inherit; font-weight: bold; }
-        nav button.active { background: var(--primary); }
-        .container { padding: 15px; max-width: 800px; margin: auto; min-height: 400px; }
-        .news-card { background: var(--surface); border-radius: 15px; padding: 18px; margin-bottom: 15px; border-right: 5px solid var(--primary); text-decoration: none; color: inherit; display: block; }
-        #loading-info { text-align: center; padding: 40px; color: var(--primary); font-weight: bold; }
-        .load-more-btn { display: none; width: 100%; padding: 15px; background: var(--primary); color: #fff; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; margin: 20px 0; font-family: inherit; }
+        :root { --primary: #e50914; --bg: #0b0b0b; --card-bg: #1a1a1a; --text: #ffffff; }
+        body { background-color: var(--bg); color: var(--text); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding: 0; overflow-x: hidden; width: 100vw; }
+        
+        header { background: rgba(0,0,0,0.95); padding: 10px 3%; display: flex; flex-direction: column; align-items: center; gap: 8px; border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000; }
+        .logo { color: var(--primary); font-size: 20px; font-weight: 900; cursor: pointer; }
+        .nav-tabs { display: flex; justify-content: center; gap: 4px; width: 100%; overflow-x: auto; scrollbar-width: none; }
+        .tab-btn { background: #222; border: none; color: white; padding: 6px 10px; border-radius: 15px; cursor: pointer; font-size: 11px; white-space: nowrap; font-weight: 600; }
+        .tab-btn.active { background: var(--primary); }
+        #search-input { padding: 8px 15px; border-radius: 20px; border: 1px solid #333; width: 90%; max-width: 350px; background: #1a1a1a; color: white; outline: none; text-align: center; font-size: 12px; }
+
+        /* السلايدر المطور باللمس */
+        .hero-slider { width: 100%; height: 220px; position: relative; overflow: hidden; background: #000; display: none; touch-action: pan-y; }
+        .hero-slide { position: absolute; inset: 0; display: flex; align-items: flex-end; padding: 25px 5%; background-size: cover; background-position: center; transition: 0.6s ease-in-out; opacity: 0; cursor: pointer; width: 100%; }
+        .hero-slide.active { opacity: 1; transform: translateX(0); }
+        .hero-slide::after { content: ''; position: absolute; inset: 0; background: linear-gradient(0deg, #0b0b0b 20%, transparent 100%); }
+        .hero-title { position: relative; z-index: 2; font-size: 18px; font-weight: bold; text-shadow: 2px 2px 5px #000; pointer-events: none; }
+
+        .filter-section { background: #000; padding: 5px 0; border-bottom: 1px solid #222; width: 100%; }
+        .filter-bar { display: flex; gap: 8px; overflow-x: auto; padding: 0 5% 8px 5%; scrollbar-width: none; }
+        .filter-btn { background: #1a1a1a; color: #ccc; border: 1px solid #333; padding: 5px 12px; border-radius: 10px; cursor: pointer; white-space: nowrap; font-size: 10px; }
+        .filter-btn.active { color: var(--primary); border-color: var(--primary); }
+
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; padding: 10px 5%; width: 90%; margin: 0 auto; }
+        .movie-card { background: var(--card-bg); border-radius: 10px; overflow: hidden; cursor: pointer; border: 1px solid #222; position: relative; }
+        .movie-card img { width: 100%; height: 190px; object-fit: cover; display: block; }
+        .movie-info { padding: 8px; text-align: center; font-size: 11px; font-weight: 600; height: 30px; overflow: hidden; }
+        
+        .badge { position: absolute; top: 6px; right: 6px; background: var(--primary); color: white; font-size: 9px; padding: 2px 5px; border-radius: 4px; font-weight: bold; z-index: 2; }
+        .fav-icon { position: absolute; top: 6px; left: 6px; background: rgba(0,0,0,0.4); color: rgba(255,255,255,0.8); border: 1px solid rgba(255,255,255,0.5); padding: 5px; border-radius: 50%; font-size: 14px; z-index: 5; transition: 0.3s; }
+        .fav-icon.active { color: #ff0000; border-color: #ff0000; background: rgba(0,0,0,0.7); }
+
+        #details-page, #player-page { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 10000; overflow-y: auto; }
+        .close-btn { position: fixed; top: 15px; left: 15px; background: var(--primary); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; cursor: pointer; z-index: 10001; }
+        
+        .meta-info { display: flex; gap: 10px; justify-content: center; margin: 10px 0; color: #aaa; font-size: 12px; }
+        .description { padding: 0 10%; line-height: 1.6; color: #ccc; font-size: 14px; text-align: center; }
+
+        .episodes-container { padding: 15px 5%; background: #000; border-top: 1px solid #333; }
+        .season-selector { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: none; }
+        .episode-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 8px; }
+        .ep-btn { background: #1a1a1a; border: 1px solid #333; color: white; padding: 10px; border-radius: 5px; text-align: center; cursor: pointer; font-size: 12px; }
+        .ep-btn.active { background: var(--primary); }
+
+        iframe, video { width: 100%; aspect-ratio: 16/9; border: none; background: #000; }
+        .btn-action { background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 25px; cursor: pointer; font-weight: bold; }
+
+        @media (max-width: 600px) { .movie-grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
 
-<header><img src="Picsart_26-01-20_05-35-29-021.png" alt="Wika News" class="logo-img"></header>
+<header>
+    <div class="logo" onclick="location.reload()">WIKA CINEMA PRO</div>
+    <div class="nav-tabs">
+        <button class="tab-btn active" id="tab-movies" onclick="switchMainTab('movies')">🎬 أفلام</button>
+        <button class="tab-btn" id="tab-tvshows" onclick="switchMainTab('tvshows')">🎞️ مسلسلات</button>
+        <button class="tab-btn" id="tab-tv" onclick="switchMainTab('tv')">📺 تلفزيون</button>
+        <button class="tab-btn" id="tab-fav" onclick="showFavorites()">❤️ المفضلة</button>
+    </div>
+    <input type="text" id="search-input" placeholder="ابحث...">
+</header>
 
-<div class="live-btn" onclick="openLive()"><div style="height:10px; width:10px; background:#fff; border-radius:50%;"></div><span>البث المباشر</span></div>
-
-<div id="iptvOverlay" class="iptv-overlay">
-    <div class="modal-header"><span style="font-weight:900; color:var(--primary);">تلفزيون ويكا نيوز</span><button onclick="closeLive()" style="background:none; border:none; color:white; font-size:2.5rem; cursor:pointer;">&times;</button></div>
-    <div class="video-box"><video id="iptv-player" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" style="width:100%; height:100%;"></video></div>
-    <div class="channels-grid" id="channelsGrid"></div>
+<div id="section-content">
+    <div class="hero-slider" id="hero-slider" ontouchstart="handleTouchStart(event)" ontouchend="handleTouchEnd(event)"></div>
+    <div class="filter-section" id="filter-area">
+        <div class="filter-bar" id="genres-bar"></div>
+        <div class="filter-bar" id="langs-bar"></div>
+    </div>
+    <div class="movie-grid" id="main-grid"></div>
+    <button id="load-more-btn" class="btn-action" style="display:block; margin:20px auto;" onclick="loadMore()">المزيد</button>
 </div>
 
-<nav>
-    <button class="active" onclick="changeCategory('all', this)">الرئيسية</button>
-    <button onclick="changeCategory('iraq', this)">أخبار العراق</button>
-    <button onclick="changeCategory('world', this)">أخبار العالم</button>
-    <button onclick="changeCategory('sports', this)">رياضة</button>
-</nav>
-
-<div class="container">
-    <div id="loading-info">جاري مزامنة الأخبار والمصادر...</div>
-    <div id="news-feed"></div>
-    <button id="btn-more" class="load-more-btn" onclick="render()">عرض المزيد</button>
+<div id="section-tv" style="display:none;">
+    <div class="filter-section">
+        <div class="filter-bar">
+            <button class="filter-btn active" onclick="filterTV('all', this)">الكل</button>
+            <button class="filter-btn" onclick="filterTV('Sports', this)">رياضة</button>
+            <button class="filter-btn" onclick="filterTV('News', this)">أخبار</button>
+            <button class="filter-btn" onclick="filterTV('Kids', this)">أطفال</button>
+            <button class="filter-btn" onclick="filterTV('Movies', this)">أفلام</button>
+            <button class="filter-btn" onclick="filterTV('Religious', this)">إسلامي</button>
+        </div>
+    </div>
+    <div class="movie-grid" id="tv-grid"></div>
 </div>
 
-<script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+<div id="details-page"><button class="close-btn" onclick="handleBack()">✕</button><div id="details-content"></div></div>
+<div id="player-page">
+    <button class="close-btn" onclick="handleBack()">✕</button>
+    <div id="video-frame"></div>
+    <div id="episodes-area" class="episodes-container" style="display:none;">
+        <h3 id="series-title" style="margin:0 0 10px 0; color:var(--primary); font-size:16px;">الحلقات</h3>
+        <div class="season-selector" id="season-bar"></div>
+        <div class="episode-list" id="episode-bar"></div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-    const channels = [
-        { name: "العراقية الإخبارية", url: "https://imn.m3u8.xyz/live/news/index.m3u8" },
-        { name: "الجزيرة مباشر", url: "https://live-hls-web-ajm.getaj.net/AJM/index.m3u8" },
-        { name: "العربية الحدث", url: "https://alarabiya.m3u8.xyz/live/alhadath/index.m3u8" },
-        { name: "سكاي نيوز عربية", url: "https://skynews.m3u8.xyz/live/live/index.m3u8" },
-        { name: "الرابعة الإخبارية", url: "https://alrabiaa.m3u8.xyz/live/live/index.m3u8" },
-        { name: "قناة الشرقية نيوز", url: "https://asharqia.m3u8.xyz/live/live/index.m3u8" },
-        { name: "تلفزيون العربي", url: "https://alaraby.m3u8.xyz/live/live/index.m3u8" },
-        { name: "قناة دجلة نيوز", url: "https://dijlah.m3u8.xyz/live/news/index.m3u8" }
-    ];
+    const API_KEY = '243d3178406656f0f1ceb1fde181815e'; 
+    const IMG = 'https://image.tmdb.org/t/p/w500';
+    const BG_IMG = 'https://image.tmdb.org/t/p/original';
+    let page = 1, currentMode = 'movies', favSubMode = 'movies', currentGenre = '', currentLang = '', searchQuery = '', tvChannels = [];
+    let favorites = JSON.parse(localStorage.getItem('wika_favs')) || [];
+    let slideIdx = 0, touchStartX = 0;
 
-    let allPosts = [];
-    let currentIdx = 0;
-    const player = videojs('iptv-player');
+    const genresList = [{id:'',n:'الكل'},{id:'28',n:'أكشن'},{id:'35',n:'كوميدي'},{id:'18',n:'دراما'},{id:'10751',n:'عائلي'},{id:'27',n:'رعب'},{id:'878',n:'خيال علمي'},{id:'10749',n:'رومانسي'},{id:'16',n:'أنيميشن'},{id:'14',n:'خيالي'},{id:'99',n:'وثائقي'},{id:'36',n:'سيرة'}];
+    const langsList = [{id:'',n:'الكل'},{id:'ar',n:'عربي'},{id:'en',n:'إنجليزي'},{id:'tr',n:'تركي'},{id:'ko',n:'كوري'},{id:'hi',n:'هندي'},{id:'fr',n:'فرنسي'},{id:'ja',n:'ياباني'},{id:'es',n:'إسباني'},{id:'it',n:'إيطالي'},{id:'de',n:'ألماني'},{id:'ru',n:'روسي'}];
 
-    async function loadNews(cat = 'all') {
-        const feed = document.getElementById('news-feed');
-        const info = document.getElementById('loading-info');
-        const btn = document.getElementById('btn-more');
-        feed.innerHTML = '';
-        info.style.display = 'block';
-        btn.style.display = 'none';
+    window.onpopstate = () => hidePages();
+    function handleBack() { history.back(); }
 
-        try {
-            const urls = ["https://www.ina.iq/rss.xml", "https://www.aljazeera.net/aljazeerarss.xml"];
-            const results = await Promise.all(urls.map(u => fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(u)}&t=${Date.now()}`).then(r => r.json())));
-
-            allPosts = [];
-            results.forEach((res, i) => {
-                const xml = new DOMParser().parseFromString(res.contents, "text/xml");
-                const items = xml.querySelectorAll("item");
-                const tag = i === 0 ? "العراق" : "العالم";
-                items.forEach(item => {
-                    const title = item.querySelector("title").textContent;
-                    const link = item.querySelector("link").textContent;
-                    if (cat === 'all' || (cat === 'iraq' && tag === 'العراق') || (cat === 'world' && tag === 'العالم') || (cat === 'sports' && (title.includes('رياض') || title.includes('كرة')))) {
-                        allPosts.push({title, link, tag});
-                    }
-                });
-            });
-
-            info.style.display = 'none';
-            currentIdx = 0;
-            render();
-        } catch (e) { info.innerText = "تعذر جلب الأخبار، يرجى إعادة المحاولة."; }
+    function switchMainTab(type) {
+        currentMode = type; page = 1;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === 'tab-'+type));
+        document.getElementById('section-content').style.display = type === 'tv' ? 'none' : 'block';
+        document.getElementById('section-tv').style.display = type === 'tv' ? 'block' : 'none';
+        document.getElementById('hero-slider').style.display = (type === 'tv' || type === 'fav') ? 'none' : 'block';
+        if(type === 'tv' && tvChannels.length === 0) fetchTV(); 
+        else if(type !== 'tv' && type !== 'fav') { renderFilters(); fetchContent(); fetchHero(); }
     }
 
-    function render() {
-        const feed = document.getElementById('news-feed');
-        const btn = document.getElementById('btn-more');
-        const chunk = allPosts.slice(currentIdx, currentIdx + 12);
-        chunk.forEach(p => { feed.innerHTML += `<a href="${p.link}" target="_blank" class="news-card"><span style="color:var(--primary); font-size:0.75rem; font-weight:bold;">📍 ${p.tag}</span><h3 style="margin:5px 0 0; font-size:1.1rem;">${p.title}</h3></a>`; });
-        currentIdx += 12;
-        btn.style.display = currentIdx < allPosts.length ? 'block' : 'none';
+    async function fetchHero() {
+        const type = currentMode === 'movies' ? 'movie' : 'tv';
+        const res = await fetch(`https://api.themoviedb.org/3/${type}/popular?api_key=${API_KEY}&language=ar-SA`);
+        const data = await res.json();
+        const slider = document.getElementById('hero-slider');
+        const items = data.results.slice(0, 5);
+        slider.innerHTML = items.map((m, idx) => `
+            <div class="hero-slide ${idx===0?'active':''}" style="background-image:url('${BG_IMG + m.backdrop_path}')" onclick='showDetailsByItem(${JSON.stringify(m).replace(/"/g, "&quot;")})'>
+                <div class="hero-title">${m.title || m.name}</div>
+            </div>
+        `).join('');
+        slideIdx = 0; startSlider();
     }
 
-    function openLive() { document.getElementById('iptvOverlay').style.display = 'block'; play(channels[0].url); }
-    function closeLive() { document.getElementById('iptvOverlay').style.display = 'none'; player.pause(); }
-    function play(url) { player.src({ type: 'application/x-mpegURL', src: url }); player.play(); }
+    function handleTouchStart(e) { touchStartX = e.changedTouches[0].screenX; }
+    function handleTouchEnd(e) {
+        let touchEndX = e.changedTouches[0].screenX;
+        if (touchStartX - touchEndX > 50) nextSlide();
+        if (touchEndX - touchStartX > 50) prevSlide();
+    }
+    function changeSlide(dir) {
+        const slides = document.querySelectorAll('.hero-slide'); if(!slides.length) return;
+        slides[slideIdx].classList.remove('active');
+        slideIdx = (slideIdx + dir + slides.length) % slides.length;
+        slides[slideIdx].classList.add('active');
+    }
+    function nextSlide() { changeSlide(1); }
+    function prevSlide() { changeSlide(-1); }
+    function startSlider() { clearInterval(window.sInt); window.sInt = setInterval(nextSlide, 5000); }
 
-    const grid = document.getElementById('channelsGrid');
-    channels.forEach(ch => {
-        const div = document.createElement('div');
-        div.className = 'ch-item';
-        div.onclick = () => play(ch.url);
-        div.innerText = ch.name;
+    async function fetchContent(isMore = false) {
+        const grid = document.getElementById('main-grid');
+        if(!isMore) { page = 1; grid.innerHTML = ''; }
+        const type = currentMode === 'movies' ? 'movie' : 'tv';
+        let url = `https://api.themoviedb.org/3/discover/${type}?api_key=${API_KEY}&language=ar-SA&sort_by=popularity.desc&page=${page}`;
+        if(currentGenre) url += `&with_genres=${currentGenre}`;
+        if(currentLang) url += `&with_original_language=${currentLang}`;
+        if(searchQuery) url = `https://api.themoviedb.org/3/search/${type}?api_key=${API_KEY}&language=ar-SA&query=${encodeURIComponent(searchQuery)}&page=${page}`;
+        const res = await fetch(url); const data = await res.json();
+        data.results.forEach(i => { i.wika_type = currentMode; renderCard(i, grid); });
+    }
+
+    function renderCard(i, grid) {
+        if(!i.poster_path && !i.logo) return;
+        const isFav = favorites.some(f => f.id == i.id);
+        const div = document.createElement('div'); div.className = 'movie-card';
+        div.innerHTML = `
+            <span class="badge">${i.vote_average ? i.vote_average.toFixed(1) : 'LIVE'}</span>
+            <span class="fav-icon ${isFav?'active':''}" onclick="toggleFav(event, ${JSON.stringify(i).replace(/"/g, '&quot;')})">❤</span>
+            <img src="${i.poster_path ? IMG + i.poster_path : i.logo}" onclick='showDetailsByItem(${JSON.stringify(i).replace(/"/g, "&quot;")})'>
+            <div class="movie-info">${i.title || i.name}</div>
+        `;
         grid.appendChild(div);
-    });
-
-    function changeCategory(cat, btn) {
-        document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        loadNews(cat);
     }
 
-    loadNews();
+    function toggleFav(e, item) {
+        e.stopPropagation();
+        const idx = favorites.findIndex(f => f.id == item.id);
+        if(idx > -1) favorites.splice(idx, 1); else favorites.push(item);
+        localStorage.setItem('wika_favs', JSON.stringify(favorites));
+        e.target.classList.toggle('active');
+        if(currentMode === 'fav') showFavorites();
+    }
+
+    function showFavorites() {
+        currentMode = 'fav';
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.id === 'tab-fav'));
+        document.getElementById('section-content').style.display = 'block';
+        document.getElementById('section-tv').style.display = 'none';
+        document.getElementById('hero-slider').style.display = 'none';
+        document.getElementById('filter-area').style.display = 'block';
+        document.getElementById('genres-bar').innerHTML = `
+            <button class="filter-btn ${favSubMode==='movies'?'active':''}" onclick="switchFavSub('movies')">أفلام مفضلة</button>
+            <button class="filter-btn ${favSubMode==='tvshows'?'active':''}" onclick="switchFavSub('tvshows')">مسلسلات مفضلة</button>
+            <button class="filter-btn ${favSubMode==='tv'?'active':''}" onclick="switchFavSub('tv')">قنوات مفضلة</button>
+        `;
+        document.getElementById('langs-bar').innerHTML = '';
+        renderFavGrid();
+        document.getElementById('load-more-btn').style.display = 'none';
+    }
+
+    function switchFavSub(mode) { favSubMode = mode; showFavorites(); }
+    function renderFavGrid() {
+        const grid = document.getElementById('main-grid'); grid.innerHTML = '';
+        const filtered = favorites.filter(fav => fav.wika_type === favSubMode);
+        if(filtered.length) filtered.forEach(i => renderCard(i, grid));
+        else grid.innerHTML = '<p style="text-align:center; width:100%">لا توجد مفضلات.</p>';
+    }
+
+    async function showDetailsByItem(i) {
+        document.getElementById('details-page').style.display = 'block';
+        history.pushState({p: 'd'}, "", "#details");
+        const type = i.title ? 'movie' : 'tv';
+        const date = i.release_date || i.first_air_date || '----';
+        document.getElementById('details-content').innerHTML = `
+            <div style="text-align:center; padding:40px 20px;">
+                <img src="${IMG + i.poster_path}" style="width:200px; border-radius:15px; box-shadow:0 10px 20px #000;">
+                <h1 style="margin:20px 0 5px 0;">${i.title || i.name}</h1>
+                <div class="meta-info">
+                    <span>⭐ ${i.vote_average || '0'}</span> | <span>📅 ${date.split('-')[0]}</span> | <span>🎬 ${type === 'movie' ? 'فيلم' : 'مسلسل'}</span>
+                </div>
+                <p class="description">${i.overview || 'لا يوجد وصف متاح.'}</p>
+                <button class="btn-action" onclick="openPlayer('${i.id}', '${i.wika_type || (i.title?'movies':'tvshows')}', '${i.name || i.title}', '${i.url || ''}')">▶ مشاهدة الآن</button>
+            </div>`;
+    }
+
+    async function openPlayer(id, type, name, url) {
+        document.getElementById('player-page').style.display = 'block';
+        const frame = document.getElementById('video-frame');
+        const epArea = document.getElementById('episodes-area');
+        history.pushState({p: 'p'}, "", "#player");
+
+        if(type === 'tvshows') {
+            epArea.style.display = 'block';
+            document.getElementById('series-title').innerText = name;
+            const res = await fetch(`https://api.themoviedb.org/3/tv/${id}?api_key=${API_KEY}&language=ar-SA`);
+            const data = await res.json();
+            document.getElementById('season-bar').innerHTML = data.seasons.filter(s=>s.season_number>0).map(s => `<button class="filter-btn" onclick="loadEpisodes('${id}', ${s.season_number})">الموسم ${s.season_number}</button>`).join('');
+            loadEpisodes(id, 1);
+        } else if(type === 'movies') {
+            epArea.style.display = 'none';
+            frame.innerHTML = `<iframe src="https://vidsrc.xyz/embed/movie?tmdb=${id}" allowfullscreen></iframe>`;
+        } else {
+            epArea.style.display = 'none';
+            frame.innerHTML = `<video id="video" controls autoplay style="width:100%"></video>`;
+            if (Hls.isSupported()) { const hls = new Hls(); hls.loadSource(url); hls.attachMedia(document.getElementById('video')); }
+        }
+    }
+
+    async function loadEpisodes(tvId, sNum) {
+        const res = await fetch(`https://api.themoviedb.org/3/tv/${tvId}/season/${sNum}?api_key=${API_KEY}&language=ar-SA`);
+        const data = await res.json();
+        document.getElementById('episode-bar').innerHTML = data.episodes.map(e => `<div class="ep-btn" onclick="playEp('${tvId}', ${sNum}, ${e.episode_number})">حلقة ${e.episode_number}</div>`).join('');
+    }
+
+    function playEp(id, s, e) { document.getElementById('video-frame').innerHTML = `<iframe src="https://vidsrc.xyz/embed/tv?tmdb=${id}&season=${s}&episode=${e}" allowfullscreen></iframe>`; window.scrollTo(0,0); }
+
+    async function fetchTV() {
+        const res = await fetch('https://iptv-org.github.io/iptv/index.m3u');
+        const data = await res.text();
+        const lines = data.split('\n'); tvChannels = [];
+        for (let i = 0; i < lines.length; i++) {
+            if (lines[i].startsWith('#EXTINF')) {
+                const url = lines[i+1]?.trim();
+                const name = lines[i].split(',')[1]?.trim() || "قناة";
+                const logo = lines[i].match(/tvg-logo="([^"]+)"/)?.[1] || "";
+                const group = lines[i].match(/group-title="([^"]+)"/)?.[1] || "";
+                if(url?.startsWith('http')) tvChannels.push({id: 'tv_'+i, name, url, logo, group, wika_type: 'tv'});
+            }
+        }
+        filterTV('all');
+    }
+
+    function filterTV(f, b) {
+        if(b) { document.querySelectorAll('#section-tv .filter-btn').forEach(btn => btn.classList.remove('active')); b.classList.add('active'); }
+        const grid = document.getElementById('tv-grid'); grid.innerHTML = '';
+        tvChannels.filter(c => f === 'all' || c.group.toLowerCase().includes(f.toLowerCase())).slice(0, 40).forEach(c => renderCard(c, grid));
+    }
+
+    function renderFilters() {
+        document.getElementById('filter-area').style.display = 'block'; document.getElementById('load-more-btn').style.display = 'block';
+        document.getElementById('genres-bar').innerHTML = genresList.map(g => `<button class="filter-btn ${currentGenre==g.id?'active':''}" onclick="updateFilter('genre','${g.id}')">${g.n}</button>`).join('');
+        document.getElementById('langs-bar').innerHTML = langsList.map(l => `<button class="filter-btn ${currentLang==l.id?'active':''}" onclick="updateFilter('lang','${l.id}')">${l.n}</button>`).join('');
+    }
+    function updateFilter(t, v) { if(t === 'genre') currentGenre = v; else currentLang = v; fetchContent(); }
+    function loadMore() { page++; fetchContent(true); }
+    function hidePages() { document.getElementById('details-page').style.display='none'; document.getElementById('player-page').style.display='none'; document.getElementById('video-frame').innerHTML=''; }
+    document.getElementById('search-input').oninput = (e) => { searchQuery = e.target.value; fetchContent(); };
+
+    switchMainTab('movies');
 </script>
 </body>
 </html>
